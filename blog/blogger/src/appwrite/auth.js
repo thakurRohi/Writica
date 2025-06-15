@@ -66,6 +66,38 @@ export class AuthService {
        }
     }
 
+    // step 8 , create login service by taking refrence from appwrite docs
+    async login({email, password}) {
+        try {
+            return await this.account.createEmailPasswordSession(email, password);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    //step 9 , create a method get current user detail whether he is authorized or not 
+    // so as there is no unauthrized access to the webpage
+    async getCurrentUser() {
+        try {
+            return await this.account.get();
+        } catch (error) {
+            console.log("Appwrite serive :: getCurrentUser :: error", error);
+        }
+
+        return null;
+    }
+
+    //step 10 , logout method
+    async logout() {
+
+        try {
+            await this.account.deleteSessions();
+        } catch (error) {
+            console.log("Appwrite serive :: logout :: error", error);
+        }
+    }
+
+
 }
 
 //step 3 , create object of class and export it
