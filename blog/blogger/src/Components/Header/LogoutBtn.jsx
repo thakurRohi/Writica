@@ -19,7 +19,7 @@ const LogoutBtn = () => {
      }
   return (
     <div>
-      
+      Logout
     </div>
   )
 }
