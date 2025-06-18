@@ -25,12 +25,15 @@ const App = () => {
     authService.getCurrentUser()
     .then((userData)=>{
       if(userData){
-        dispatch(login(userData))
+        dispatch(login({userData}))
       }
-
       else{
         dispatch(logout())
       }
+    })
+    .catch((error) => {
+      console.log("Auth check error:", error);
+      dispatch(logout())
     })
     // after that whole process is done loading is done false
     .finally(()=>setLoading(false))
@@ -44,7 +47,7 @@ const App = () => {
       <div className='w-full block'>
         <Header />
         <main>
-        {/* TODO:  <Outlet /> */}
+        <Outlet />
         </main>
         <Footer />
       </div>

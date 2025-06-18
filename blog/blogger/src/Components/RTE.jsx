@@ -21,6 +21,7 @@ export default function RTE({ name, control, label, defaultValue =""}){
         // this is the component that we have to render
         <Editor
         initialValue={defaultValue}
+        apiKey={import.meta.env.VITE_TINYMCE_API_KEY || "no-api-key"}
         init={{
             initialValue: defaultValue,
             height: 500,

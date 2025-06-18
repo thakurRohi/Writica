@@ -44,7 +44,7 @@ export class AuthService {
 
     // // step 6 , frist line of code will be written to remove vendor dependency , this
     // line or part of code will remain consistent and under the hood worl will remain
-    //hidden , also indoendent of the vendor or service used
+    //hidden , also indoependent of the vendor or service used
 
     //****** 
     //destructure email,password , name from object
@@ -82,9 +82,12 @@ export class AuthService {
             return await this.account.get();
         } catch (error) {
             console.log("Appwrite serive :: getCurrentUser :: error", error);
+            // If user is not authenticated, return null instead of throwing
+            if (error.code === 401 || error.message.includes('missing scope')) {
+                return null;
+            }
+            throw error;
         }
-
-        return null;
     }
 
     //step 10 , logout method

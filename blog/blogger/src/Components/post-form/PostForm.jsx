@@ -62,7 +62,7 @@ export default function PostForm({ post }) {
                 }
             }
         }
-    }
+    };
 
     // we have two nput fields , title an dslug , watch tittle sonstantly and convert space
     // to -
