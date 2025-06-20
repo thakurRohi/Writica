@@ -34,6 +34,7 @@ export class Service{
             )
         } catch (error) {
             console.log("Appwrite serive :: createPost :: error", error);
+            throw error; 
         }
     }
 
@@ -87,6 +88,22 @@ export class Service{
         }
     }
 
+    async getUserPosts(userId) {
+        try {
+            return await this.databases.listDocuments(
+                conf.appwriteDatabaseId,
+                conf.appwriteCollectionId,
+                [
+                    Query.equal("userId", userId),
+                    Query.equal("status", "active"),
+                ]
+            );
+        } catch (error) {
+            console.log("Appwrite service :: getUserPosts :: error", error);
+            return false;
+        }
+    }
+
     //we are trying to get posts with status active
     async getPosts(queries = [Query.equal("status", "active")]){
         try {
@@ -113,7 +130,7 @@ export class Service{
                 file
             )
         } catch (error) {
-            console.log("Appwrite serive :: uploadFile :: error", error);
+            console.log("Appwrite serice :: uploadFile :: error", error);
             return false
         }
     }
@@ -142,3 +159,4 @@ export class Service{
 
 const service = new Service()
 export default service
+

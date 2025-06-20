@@ -36,11 +36,16 @@ const Header = () => {
       slug: "/signup",
       active: !authStatus,
   },
+  // {
+  //     name: "All Posts",
+  //     slug: "/all-posts",
+  //     active: authStatus,
+  // },
   {
-      name: "All Posts",
-      slug: "/all-posts",
-      active: authStatus,
-  },
+    name: "My Posts",
+    slug: "/my-posts",
+    active: authStatus,
+},
   {
       name: "Add Post",
       slug: "/add-post",
@@ -49,18 +54,17 @@ const Header = () => {
   ]
 
   return (
-    <header className='py-3 shadow bg-gray-500'>
+    <header className='sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm'>
       <Container>
-        <nav className='flex'>
-          <div className='mr-4'>
-            <Link to='/'>
-              <Logo width='70px'   />
-
-              </Link>
+        <nav className='flex items-center justify-between py-4'>
+          <div className='flex items-center'>
+            <Link to='/' className='hover:opacity-80 transition-opacity'>
+              <Logo width='70px' />
+            </Link>
           </div>
 {/* mapped all array items along with their urls and their authStatus 
 based on useState value of authentication */}
-          <ul className='flex ml-auto'>
+          <ul className='flex items-center space-x-2'>
             {navItems.map((item) => 
 // did a conditional rendering on the basis of their true value 
 // in active status being not authenticated
@@ -69,7 +73,7 @@ based on useState value of authentication */}
               <li key={item.name}>
                 <button
                 onClick={() => navigate(item.slug)}
-                className='inline-bock px-6 py-2 duration-200 hover:bg-blue-100 rounded-full'
+                className='inline-block px-4 py-2 text-sm font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200'
                 >{item.name}</button>
               </li>
             ) : null

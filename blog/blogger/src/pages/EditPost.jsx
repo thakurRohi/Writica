@@ -1,31 +1,31 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect} from 'react'
 import {Container, PostForm} from '../Components'
-import appwriteService from "../appwrite/config";
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchPostBySlug } from '../store/fileThunks';
 import { useNavigate,  useParams } from 'react-router-dom';
 
 function EditPost() {
-    const [post, setPosts] = useState(null)
-    const {slug} = useParams()
-    const navigate = useNavigate()
+    const dispatch = useDispatch();
+    const {slug} = useParams();
+    const navigate = useNavigate();
+    const post = useSelector(state => state.file.currentPost);
+    const postStatus = useSelector(state => state.file.currentPostStatus);
 
     useEffect(() => {
         if (slug) {
-            appwriteService.getPost(slug).then((post) => {
-                if (post) {
-                    setPosts(post)
-                }
-            })
+            dispatch(fetchPostBySlug(slug));
         } else {
-            navigate('/')
+            navigate('/');
         }
-    }, [slug, navigate])
-  return post ? (
-    <div className='py-8'>
-        <Container>
-            <PostForm post={post} />
-        </Container>
-    </div>
-  ) : null
+    }, [slug, navigate, dispatch]);
+
+    return postStatus === 'succeeded' && post ? (
+        <div className='py-8'>
+            <Container>
+                <PostForm post={post} />
+            </Container>
+        </div>
+    ) : null;
 }
 
 export default EditPost

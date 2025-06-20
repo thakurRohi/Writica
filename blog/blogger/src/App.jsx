@@ -43,10 +43,10 @@ const App = () => {
   
 
   return !loading ? (
-    <div className='min-h-screen flex flex-wrap content-between bg-gray-400'>
-      <div className='w-full block'>
+    <div className='min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-slate-100'>
+      <div className='w-full flex-1 flex flex-col'>
         <Header />
-        <main>
+        <main className='flex-1'>
         <Outlet />
         </main>
         <Footer />

@@ -1,9 +1,11 @@
 import React, { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { Button, Input, RTE, Select } from "..";
-import appwriteService from "../../appwrite/config";
+import service from "../../appwrite/config";
+import { useDispatch, useSelector } from "react-redux";
+import { createPost,updatePost } from "../../store/fileThunks"; // Import 
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+
 
 export default function PostForm({ post }) {
 // this is the information that useForm is going to provide
@@ -19,49 +21,98 @@ export default function PostForm({ post }) {
             status: post?.status || "active",
         },
     });
-    
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     const userData = useSelector((state) => state.auth.userData);
-
+    
+      // Access the loading and error states from Redux
+    const { uploadStatus, error: createError } = useSelector(
+        (state) => state.file || { uploadStatus: 'idle', error: null }
+    );
+    
+    const isCreating = uploadStatus === 'loading';
     const submit = async (data) => {
 
-        if (post) {
-        // use appwrite service to upload file
-            const file = data.image[0] ? await appwriteService.uploadFile(data.image[0]) : null;
-        // once file is uploaded dedlet the older one
-            if (file) {
-                appwriteService.deleteFile(post.featuredImage);
-            }
-        // update the post now by giving data , post.id is slug
+      
+
+        // if (post) {
+        // // use appwrite service to upload file
+        //     const file = data.image[0] ? await service.uploadFile(data.image[0]) : null;
+        // // once file is uploaded dedlet the older one
+        //     if (file) {
+        //         service.deleteFile(post.featuredImage);
+        //     }
+        // // update the post now by giving data , post.id is slug
      
-            const dbPost = await appwriteService.updatePost(post.$id, {
-                ...data,
-                   // overwrite featured image
-                featuredImage: file ? file.$id : undefined,
-            });
-        // once evrything oden succesfuly navigate user
-            if (dbPost) {
-                navigate(`/post/${dbPost.$id}`);
-            }
-        } 
-        // if there is no post that measn the user wants to create something new
-        //// aslo he doesn have to update anything
-        else {
-            // so we handle file first
-            const file = data.image[0] ? await appwriteService.uploadFile(data.image[0]) : null;
+        //     const dbPost = await service.updatePost(post.$id, {
+        //         ...data,
+        //            // overwrite featured image
+        //         featuredImage: file ? file.$id : undefined,
+        //     });
+        // // once evrything oden succesfuly navigate user
+        //     if (dbPost) {
+        //         navigate(`/post/${dbPost.$id}`);
+        //     }
+        // } 
+        // // if there is no post that measn the user wants to create something new
+        // //// aslo he doesn have to update anything
+        // else {
+        //     // so we handle file first
+        //     const file = data.image[0] ? await service.uploadFile(data.image[0]) : null;
 
-            if (file) {
-                const fileId = file.$id;
-                data.featuredImage = fileId;
-                const dbPost = await appwriteService.createPost({
-                     ...data, userId: userData.$id 
-                    });
+        //     if (file) {
+        //         const fileId = file.$id;
+        //         data.featuredImage = fileId;
+        //         const dbPost = await service.createPost({
+        //              ...data, userId: userData.$id 
+        //             });
 
-                if (dbPost) {
-                    navigate(`/post/${dbPost.$id}`);
-                }
-            }
-        }
+        //         if (dbPost) {
+        //             navigate(`/post/${dbPost.$id}`);
+        //         }
+        //     }
+        // }
+
+        try {
+            // Dispatch the update thunk with form data and image
+            if (post) {
+                // Editing: dispatch updatePost
+                const result = await dispatch(
+                  updatePost({
+                    postId: post.$id,
+                    postData: {
+                      ...data,
+                      userId: userData.$id,
+                      featuredImage: data.image?.[0] ? undefined : post.featuredImage, // keep old image if no new one
+                    },
+                    imageFile: data.image?.[0] || null,
+                  })
+                ).unwrap();
+                if (result && result.$id) {
+                    navigate(`/post/${result.$id}`);
+                  }
+              }
+
+              else {
+                // Creating: dispatch createPost
+                const result = await dispatch(
+                  createPost({
+                    postData: {
+                      ...data,
+                      userId: userData.$id,
+                    },
+                    imageFile: data.image?.[0] || null,
+                  })
+                ).unwrap();
+                if (result && result.$id) {
+                    navigate(`/post/${result.$id}`);
+                  }
+              }
+
+          } catch (error) {
+            // Errors are already handled by the thunk, but you can add additional handling here
+            console.error("Post creation failed:", error);
+          }
     };
 
     // we have two nput fields , title an dslug , watch tittle sonstantly and convert space
@@ -127,7 +178,7 @@ export default function PostForm({ post }) {
                 {post && (
                     <div className="w-full mb-4">
                         <img
-                            src={appwriteService.getFilePreview(post.featuredImage)}
+                            src={service.getFilePreview(post.featuredImage)}
                             alt={post.title}
                             className="rounded-lg"
                         />
@@ -139,10 +190,18 @@ export default function PostForm({ post }) {
                     className="mb-4"
                     {...register("status", { required: true })}
                 />
-                <Button type="submit" bgColor={post ? "bg-green-500" : undefined} className="w-full">
-                    {post ? "Update" : "Submit"}
+                <Button type="submit" bgColor={post ? "bg-green-500" : undefined} className="w-full" 
+                  // Disable during loading
+                  disabled={isCreating} >
+                    {isCreating ? "Creating..." : post ? "Update" : "Create"}
                 </Button>
+
+                  {/* Display error message if any */}
+                 {createError && (
+                 <div className="text-red-500 mt-2">{createError}</div>
+                   )}
             </div>
         </form>
     );
 }
+

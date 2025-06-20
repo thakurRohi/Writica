@@ -49,21 +49,28 @@ export class AuthService {
     //****** 
     //destructure email,password , name from object
     async createAccount({email, password, name}) {
-       // step 7 , open try catch block , as it may fail 
-       try {
-
-        //step 8, create userAccount , accepting id, name , email ... accordiing to docs
-        const userAccount = await this.account.create(ID.unique(), email, password, name);
-        if (userAccount) {
-            // call another method , login user if once he creates account
-            // will do this later
-           
-        } else {
-           return  userAccount;
+        try {
+            const userAccount = await this.account.create(ID.unique(), email, password, name);
+            if (userAccount) {
+                try {
+                    // Try to log in
+                    return await this.login({email, password});
+                } catch (error) {
+                    // If session already exists, just return the user account
+                    if (
+                        error.code === 409 &&
+                        error.message.includes("session is active")
+                    ) {
+                        return userAccount;
+                    }
+                    throw error;
+                }
+            } else {
+                return userAccount;
+            }
+        } catch (error) {
+            throw error;
         }
-       } catch (error) {
-          throw error
-       }
     }
 
     // step 8 , create login service by taking refrence from appwrite docs
