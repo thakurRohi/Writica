@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, {useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { Button, Input, RTE, Select } from "..";
 import service from "../../appwrite/config";
@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createPost,updatePost } from "../../store/fileThunks"; // Import 
 import { useNavigate } from "react-router-dom";
 
+const FORM_STORAGE_KEY = "postFormData";
 
 export default function PostForm({ post }) {
 // this is the information that useForm is going to provide
@@ -113,6 +114,8 @@ export default function PostForm({ post }) {
             // Errors are already handled by the thunk, but you can add additional handling here
             console.error("Post creation failed:", error);
           }
+
+          localStorage.removeItem(FORM_STORAGE_KEY);
     };
 
     // we have two nput fields , title an dslug , watch tittle sonstantly and convert space
@@ -145,6 +148,26 @@ export default function PostForm({ post }) {
 
         return () => subscription.unsubscribe();
     }, [watch, slugTransform, setValue]);
+
+        // Restore form data from localStorage on mount
+        useEffect(() => {
+            const savedData = localStorage.getItem(FORM_STORAGE_KEY);
+            if (savedData) {
+                const parsed = JSON.parse(savedData);
+                Object.keys(parsed).forEach(key => {
+                    setValue(key, parsed[key]);
+                });
+            }
+        }, [setValue]);
+
+         // Save form data to localStorage on change
+    useEffect(() => {
+        const subscription = watch((value) => {
+            localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(value));
+        });
+        return () => subscription.unsubscribe();
+    }, [watch]);
+
 
 
     return (

@@ -4,14 +4,30 @@ import {Container, PostCard} from '../Components'
 import conf from '../conf/conf.js'
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllPosts } from "../store/fileThunks";
-
+import axios from 'axios'
 function Home() {
     const dispatch = useDispatch();
     const { files: posts = [], fetchStatus, error } = useSelector((state) => state.file);
-
+    const [jokes,setjokes]=useState([])
+   
     useEffect(() => {
         dispatch(fetchAllPosts());
+       
+
     }, [dispatch])
+    
+    useEffect(() => {
+        axios.get('/api/jokes')
+        .then((response)=>{
+            setjokes(response.data)
+        })
+        .catch((error)=>{
+            console.log(error)
+        })
+    })
+    
+
+ 
 
     if (fetchStatus === 'loading') {
         return <div className="w-full py-16 text-center">Loading posts...</div>;
@@ -57,6 +73,18 @@ function Home() {
                     ))}
                 </div>
             </Container>
+         
+            {
+                jokes.map((joke,index)=>(
+                  <div key={index}>
+                    {joke.joke}
+                    </div>
+                ))
+            }
+        
+          
+
+
         </div>
     )
 }
