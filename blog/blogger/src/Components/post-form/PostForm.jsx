@@ -154,21 +154,30 @@ export default function PostForm({ post }) {
             const savedData = localStorage.getItem(FORM_STORAGE_KEY);
             if (savedData) {
                 const parsed = JSON.parse(savedData);
-                Object.keys(parsed).forEach(key => {
-                    setValue(key, parsed[key]);
-                });
+                // e.g., expire after 1 hour
+                if (parsed._ts && Date.now() - parsed._ts < 3600000) {
+                    Object.keys(parsed).forEach(key => {
+                        if (key !== "_ts") setValue(key, parsed[key]);
+                    });
+                } else {
+                    localStorage.removeItem(FORM_STORAGE_KEY);
+                }
             }
         }, [setValue]);
 
          // Save form data to localStorage on change
     useEffect(() => {
         const subscription = watch((value) => {
-            localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(value));
+            localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify({ ...value, _ts: Date.now() }));
         });
         return () => subscription.unsubscribe();
     }, [watch]);
 
-
+    useEffect(() => {
+        return () => {
+            localStorage.removeItem(FORM_STORAGE_KEY);
+        };
+    }, []);
 
     return (
         <form onSubmit={handleSubmit(submit)} className="flex flex-wrap">
