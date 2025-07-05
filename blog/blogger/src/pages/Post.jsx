@@ -12,6 +12,7 @@ export default function Post() {
     const navigate = useNavigate();
     const post = useSelector(state => state.file.currentPost);
     const postStatus = useSelector(state => state.file.currentPostStatus);
+    const { status: isAuthenticated } = useSelector((state) => state.auth);
  
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef(null);
@@ -27,6 +28,12 @@ export default function Post() {
             navigate('/');
         }
     }, [slug, navigate, dispatch]);
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+            navigate("/login");
+        }
+    }, [isAuthenticated, navigate]);
 
     // Close dropdown on outside click
     useEffect(() => {
@@ -54,6 +61,10 @@ export default function Post() {
                 }
             });
     };
+
+    if (!isAuthenticated) {
+        return <div className="w-full py-16 text-center text-red-600 font-bold">Access Denied: Please log in to view this post.</div>;
+    }
 
     return post ? (
         <div className="py-10 bg-slate-50 min-h-screen">

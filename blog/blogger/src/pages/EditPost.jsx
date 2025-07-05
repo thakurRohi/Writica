@@ -10,6 +10,7 @@ function EditPost() {
     const navigate = useNavigate();
     const post = useSelector(state => state.file.currentPost);
     const postStatus = useSelector(state => state.file.currentPostStatus);
+    const { status: isAuthenticated } = useSelector((state) => state.auth);
 
     useEffect(() => {
         if (slug) {
@@ -18,6 +19,12 @@ function EditPost() {
             navigate('/');
         }
     }, [slug, navigate, dispatch]);
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+            navigate("/login");
+        }
+    }, [isAuthenticated, navigate]);
 
     return postStatus === 'succeeded' && post ? (
         <div className='py-8'>

@@ -3,7 +3,7 @@ import {Container, Logo, LogoutBtn} from '../index'
 import { Link } from 'react-router-dom'
 import {useSelector} from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-
+// import Profile from '../../Components/Header/Profile'
 
 
 const Header = () => {
@@ -78,10 +78,12 @@ based on useState value of authentication */}
               </li>
             ) : null
             )}
+
 {/* if you are authenticated then show logout button */}
             {authStatus && (
               <li>
-                <LogoutBtn />
+             
+                {/* <Profile/> */}
               </li>
             )}
           </ul>

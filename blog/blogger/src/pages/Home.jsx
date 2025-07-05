@@ -5,10 +5,14 @@ import conf from '../conf/conf.js'
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllPosts } from "../store/fileThunks";
 import axios from 'axios'
+import { useNavigate } from "react-router-dom";
+
 function Home() {
     const dispatch = useDispatch();
     const { files: posts = [], fetchStatus, error } = useSelector((state) => state.file);
     const [jokes,setjokes]=useState([])
+    const { status: isAuthenticated } = useSelector((state) => state.auth);
+    const navigate = useNavigate();
    
     useEffect(() => {
         dispatch(fetchAllPosts());
@@ -25,6 +29,12 @@ function Home() {
             console.log(error)
         })
     })
+    
+    useEffect(() => {
+        if (!isAuthenticated) {
+            navigate("/login");
+        }
+    }, [isAuthenticated, navigate]);
     
 
  
@@ -74,13 +84,7 @@ function Home() {
                 </div>
             </Container>
          
-            {
-                jokes.map((joke,index)=>(
-                  <div key={index}>
-                    {joke.joke}
-                    </div>
-                ))
-            }
+           
         
           
 

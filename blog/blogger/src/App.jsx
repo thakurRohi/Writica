@@ -6,6 +6,8 @@ import authService from "./appwrite/auth"
 import {login, logout} from "./store/authSlice"
 import { Footer, Header } from './Components'
 import { Outlet } from 'react-router-dom'
+// import { fetchProfile } from './store/profileSlice'
+
 
 // we are going to do a conditional rendering on the app.jsx file
 // while loading or interaction with server takes some time
@@ -13,7 +15,9 @@ import { Outlet } from 'react-router-dom'
 const App = () => {
   //step1 create a loading useState
   const [loading, setLoading] = useState(true)
-  const dispatch = useDispatch()
+const dispatch=useDispatch()
+ 
+  
 
   // useEffect will be used in order to automatically make state chnages
   // firstly user is get()
@@ -40,12 +44,19 @@ const App = () => {
   
    
   }, [])
+
+  // useEffect(() => {
+  //   dispatch(fetchProfile());
+  // }, [dispatch]);
   
 
   return !loading ? (
     <div className='min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-slate-100'>
       <div className='w-full flex-1 flex flex-col'>
         <Header />
+ 
+       
+
         <main className='flex-1'>
         <Outlet />
         </main>

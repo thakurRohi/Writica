@@ -2,12 +2,13 @@
 // with databse and buckets
 
 import conf from '../conf/conf.js';
-import { Client, ID, Databases, Storage, Query } from "appwrite";
+import { Client, ID, Databases, Storage, Query, Account } from "appwrite";
 
 export class Service{
     client = new Client();
     databases;
     bucket;
+    users;
     
     constructor(){
         this.client
@@ -15,7 +16,10 @@ export class Service{
         .setProject(conf.appwriteProjectId);
         this.databases = new Databases(this.client);
         this.bucket = new Storage(this.client);
+        this.users = new Account(this.client);
     }
+
+
 
     // slug acts like an unique id
     async createPost({title, slug, content, featuredImage, status, userId}){
@@ -148,14 +152,15 @@ export class Service{
         }
     }
 
-    getFilePreview(fileId){
+     getFilePreview(fileId){
         return this.bucket.getFileView(
             conf.appwriteBucketId,
             fileId
         )
     }
-}
 
+
+}
 
 const service = new Service()
 export default service

@@ -1,13 +1,13 @@
 import {configureStore} from '@reduxjs/toolkit';
 import authSlice from './authSlice';
 import fileSlice from './fileSlice';
-import testSlice from './testSlice'
+// import profileSlice from './profileSlice'
 
 const store = configureStore({
     reducer: {
         auth : authSlice,
         file: fileSlice,
-        meals:testSlice
+        // profile: profileSlice
         //TODO: add more slices here for posts
     }
 });

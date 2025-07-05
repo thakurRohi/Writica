@@ -7,6 +7,8 @@ function MyPosts() {
     const dispatch = useDispatch();
     const userData = useSelector((state) => state.auth.userData);
     const { userPosts = [], fetchStatus, error } = useSelector((state) => state.file);
+    const { status: isAuthenticated } = useSelector((state) => state.auth);
+
     useEffect(() => {
         if (userData?.$id) {
             dispatch(fetchUserPosts(userData.$id));
@@ -14,6 +16,10 @@ function MyPosts() {
         
         
     }, [userData,dispatch]);
+
+    if (!isAuthenticated) {
+        return <div className="w-full py-16 text-center text-red-600 font-bold">Access Denied: Please log in to view your posts.</div>;
+    }
 
     return (
         <div className="w-full py-8">
