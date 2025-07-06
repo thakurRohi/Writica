@@ -56,7 +56,15 @@ export const updateUserProfile = createAsyncThunk(
     'profile/updateUserProfile',
     async ({ userId, data }, { rejectWithValue }) => {
         try {
-            const profile = await profileService.updateProfile(userId, data);
+            // 1. Fetch the profile document for this user
+            const profileDocs = await profileService.findProfileByUserId(userId);
+            if (!profileDocs || profileDocs.length === 0) {
+                throw new Error("Profile not found for user");
+            }
+            const documentId = profileDocs[0].$id;
+
+            // 2. Update the profile using the documentId
+            const profile = await profileService.updateProfile(documentId, data);
             return profile;
         } catch (error) {
             return rejectWithValue(error.message);

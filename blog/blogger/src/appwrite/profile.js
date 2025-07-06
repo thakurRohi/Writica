@@ -1,4 +1,3 @@
-
 import conf from '../conf/conf.js';
 import { Client, ID, Databases, Storage, Query, Account } from "appwrite";
 
@@ -57,6 +56,22 @@ async createUserProfile({ userId, name, email }) {
             throw error;
         }
     }
+
+    async findProfileByUserId(userId) {
+        try {
+            if (!userId) throw new Error("userId is required for profile search");
+            const result = await this.databases.listDocuments(
+                conf.appwriteDatabaseId,
+                conf.appwriteProfileCollectionId,
+                [Query.equal('userId', [userId])] // <-- FIXED HERE
+            );
+            return result.documents;
+        } catch (error) {
+            console.log("ProfileService :: findProfileByUserId :: error", error);
+            throw error;
+        }
+    }
+    
 
 }
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import {Container, Logo, LogoutBtn} from '../index'
+import {Container, Logo, LogoutBtn, ProfileComponent} from '../index'
 import { Link } from 'react-router-dom'
 import {useSelector} from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -12,6 +12,7 @@ function Header() {
   //fetch auth status of current user by using useSelector method
   // of redux toolkit and store it in a variable
   const authStatus = useSelector((state)=>state.auth.status)
+  const userData = useSelector((state)=>state.auth.userData)
   const navigate = useNavigate()
 
   // step 3 for items presnt in navbar we do a loop on an array 
@@ -79,7 +80,7 @@ based on useState value of authentication */}
 {/* if you are authenticated then show profile and logout button */}
             {authStatus && (
               <div className="flex items-center space-x-3">
-             
+                <ProfileComponent userId={userData?.$id} />
                 <LogoutBtn />
               </div>
             )}

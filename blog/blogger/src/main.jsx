@@ -17,6 +17,7 @@ import EditPost from "./pages/EditPost";
 import Post from "./pages/Post";
 import MyPosts from "./pages/MyPosts";
 import AllPosts from "./pages/AllPosts";
+import EditProfile from './pages/EditProfile.jsx'
 
 const router = createBrowserRouter([
   {
@@ -32,6 +33,14 @@ const router = createBrowserRouter([
             element: (
                 <AuthLayout authentication={false}>
                     <Login />
+                </AuthLayout>
+            ),
+        },
+        {
+            path: "/edit-profile",
+            element: (
+                <AuthLayout authentication>
+                    <EditProfile />
                 </AuthLayout>
             ),
         },
