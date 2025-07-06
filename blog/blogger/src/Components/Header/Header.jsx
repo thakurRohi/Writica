@@ -3,12 +3,9 @@ import {Container, Logo, LogoutBtn} from '../index'
 import { Link } from 'react-router-dom'
 import {useSelector} from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-// import Profile from '../../Components/Header/Profile'
 
-
-const Header = () => {
-
-  // step 1 , we are checking whether the user is authenticated or not
+function Header() {
+  // we are checking whether the user is authenticated or not
   // and further on the basis of that we can do a conditional 
   // rendering on the logout button , whento show it
   
@@ -79,16 +76,16 @@ based on useState value of authentication */}
             ) : null
             )}
 
-{/* if you are authenticated then show logout button */}
+{/* if you are authenticated then show profile and logout button */}
             {authStatus && (
-              <li>
+              <div className="flex items-center space-x-3">
              
-                {/* <Profile/> */}
-              </li>
+                <LogoutBtn />
+              </div>
             )}
           </ul>
         </nav>
-        </Container>
+      </Container>
     </header>
   )
 }

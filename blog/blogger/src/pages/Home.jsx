@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 function Home() {
     const dispatch = useDispatch();
     const { files: posts = [], fetchStatus, error } = useSelector((state) => state.file);
-    const [jokes,setjokes]=useState([])
+
     const { status: isAuthenticated } = useSelector((state) => state.auth);
     const navigate = useNavigate();
    
@@ -19,16 +19,7 @@ function Home() {
        
 
     }, [dispatch])
-    
-    useEffect(() => {
-        axios.get('/api/jokes')
-        .then((response)=>{
-            setjokes(response.data)
-        })
-        .catch((error)=>{
-            console.log(error)
-        })
-    })
+ 
     
     useEffect(() => {
         if (!isAuthenticated) {

@@ -25,6 +25,7 @@ function Login() {
     // step 3 
     const login=async(data)=>{
         // first make the errors empty in order for best practises
+        setError("")
         try {
             // fetch the session and store it in a variable
             const session = await authService.login(data)
@@ -33,12 +34,20 @@ function Login() {
         // after that redirect user to home or root page
             if(session){
                 const userData = await authService.getCurrentUser()
-                if(userData) dispatch(authLogin({userData}))
+                if(userData) {
+                    dispatch(authLogin({userData}))
                     navigate("/")
+                } else {
+                    setError("Failed to get user data")
+                }
             }
         } catch (error) {
             // update state of error
-            setError(error.message)
+            if (error.message.includes("rate limit")) {
+                setError("Too many requests. Please wait a few minutes and try again.");
+            } else {
+                setError(error.message)
+            }
         }
     }
 

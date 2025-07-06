@@ -158,10 +158,14 @@ export class Service{
             fileId
         )
     }
+    
 
+
+    // Get current user details
 
 }
 
 const service = new Service()
 export default service
+
 
