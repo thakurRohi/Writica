@@ -42,9 +42,25 @@ export const createUserProfile = createAsyncThunk(
 
 export const fetchUserProfile = createAsyncThunk(
     'profile/fetchUserProfile',
-    async (userId, { rejectWithValue }) => {
+    async (userId, { rejectWithValue, getState }) => {
         try {
-            const profile = await profileService.getProfile(userId);
+            let profile = await profileService.getProfile(userId);
+            if (!profile) {
+                // Try to auto-create profile if missing
+                // Get user data from auth state
+                const state = getState();
+                const userData = state.auth.userData;
+                if (userData && userData.$id === userId) {
+                    profile = await profileService.createUserProfile({
+                        userId: userData.$id,
+                        name: userData.name || 'No Name',
+                        email: userData.email || 'No Email',
+                    });
+                } else {
+                    // If no userData, cannot create profile
+                    throw new Error('Profile not found and user data unavailable to create profile.');
+                }
+            }
             return profile;
         } catch (error) {
             return rejectWithValue(error.message);

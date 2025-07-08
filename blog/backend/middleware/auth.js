@@ -6,6 +6,8 @@ export const authenticateUser = async (req, res, next) => {
     const userId = req.headers['x-appwrite-user-id'];
     const sessionId = req.headers['x-appwrite-session-id'];
     
+    console.log('Current sessionId:', sessionId);
+    
     if (!userId || !sessionId) {
       return res.status(401).json({ error: 'Missing authentication headers' });
     }

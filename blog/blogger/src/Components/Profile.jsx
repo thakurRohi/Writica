@@ -41,7 +41,20 @@ function ProfileComponent({ userId }) {
       </div>
     );
   }
-  if (!profile) return null;
+  if (!profile) {
+    // Profile is missing even after auto-create attempt
+    return (
+      <div className="flex flex-col items-center justify-center w-40 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-700 text-xs">
+        <div className="mb-2 font-semibold">No profile found</div>
+        <button
+          className="px-3 py-1 bg-yellow-200 rounded hover:bg-yellow-300 transition"
+          onClick={() => navigate('/edit-profile')}
+        >
+          Complete your profile
+        </button>
+      </div>
+    );
+  }
 
   // Get initials from user name
   const getInitials = (name) => {

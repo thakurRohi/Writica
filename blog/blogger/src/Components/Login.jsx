@@ -29,6 +29,7 @@ function Login() {
         try {
             // fetch the session and store it in a variable
             const session = await authService.login(data)
+            console.log("Session ID:", session.$id);
         // if the session is non null then get current user and 
         // update it in the context
         // after that redirect user to home or root page

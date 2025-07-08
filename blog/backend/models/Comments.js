@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
- const Comment = new mongoose.Schema({
+
+const commentSchema = new mongoose.Schema({
     postId: {
       type: String,          // Stores Appwrite post document ID
       required: true,        // Must be provided
@@ -35,5 +36,6 @@ import mongoose from 'mongoose';
     }
   });
 
+const Comment = mongoose.model('Comment', commentSchema);
 
-  export default Comment;
+export default Comment;
