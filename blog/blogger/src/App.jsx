@@ -6,6 +6,7 @@ import authService from "./appwrite/auth"
 import {login, logout} from "./store/authSlice"
 import { Footer, Header } from './Components'
 import { Outlet } from 'react-router-dom'
+import useSocketListeners from "./hooks/useSocketListeners"
 // import { fetchProfile } from './store/profileSlice'
 
 
@@ -45,10 +46,8 @@ const dispatch=useDispatch()
    
   }, [])
 
-  // useEffect(() => {
-  //   dispatch(fetchProfile());
-  // }, [dispatch]);
-  
+  // This hook sets up all your socket event listeners and dispatches Redux actions
+  useSocketListeners();
 
   return !loading ? (
     <div className='min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-slate-100'>
