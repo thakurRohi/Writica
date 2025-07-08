@@ -2,7 +2,7 @@ import React, {useId} from 'react'
 // using apwrite service fo rimage handling
 import appwriteService from "../appwrite/config"
 import {Link} from 'react-router-dom'
-
+// import LikesDisplay from './IoComponents/LikesDisplay'
 
 function PostCard({
     $id,// unique id for each post , $ is convention used by appwrite
@@ -26,6 +26,10 @@ function PostCard({
                     <h2 className="text-2xl font-semibold text-slate-900 group-hover:text-blue-600 transition-colors duration-200 mb-2 line-clamp-2">
                         {title}
                     </h2>
+
+                    {/* <div className="mt-4 flex items-center justify-between">
+                       <LikesDisplay postId={$id}/>
+                    </div> */}
                     {/* You can add more post info here, like author/date, if available */}
                     <div className="mt-4 flex items-center justify-between">
                         <span className="text-xs text-slate-400 font-medium">Read More</span>
