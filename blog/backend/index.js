@@ -26,11 +26,13 @@ app.get('/', (req, res) => {
     res.send('server is ready')
 })
 
-
-
 const port = process.env.PORT||3000
 
+if(process.env.NODE_ENV!=="production"){
+    app.listen(port,()=>{
+        console.log(`server at http://localhost:${port}`)
+    })
+}
 
-app.listen(port,()=>{
-    console.log(`server at http://localhost:${port}`)
-})
+// for vercel
+export default app
