@@ -11,6 +11,7 @@ router.post('/', authenticateUser, async (req, res) => {
       postId,
       userId: req.user.id,
       userName: req.user.name,
+      
       userEmail: req.user.email,
       content,
       parentCommentId

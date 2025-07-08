@@ -5,6 +5,8 @@ import { Button, Container } from "../Components";
 import parse from "html-react-parser";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPostBySlug ,deletePost as deletePostThunk} from '../store/fileThunks';
+import Comments from "../Components/Comments";
+import { resetComments } from "../store/BackendConfig/commentsSlice";
 
 export default function Post() {
     const dispatch = useDispatch();
@@ -51,6 +53,7 @@ export default function Post() {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [menuOpen]);
+
 
     const deletePost = () => {
         if (!post) return;
@@ -113,6 +116,9 @@ export default function Post() {
                         </div>
                     </div>
                 </div>
+            </Container>
+            <Container>
+                <Comments postId={post.$id || post.postId} />
             </Container>
         </div>
     ) : null;
