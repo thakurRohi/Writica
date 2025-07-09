@@ -2,6 +2,8 @@ import React, {useId} from 'react'
 // using apwrite service fo rimage handling
 import appwriteService from "../appwrite/config"
 import {Link} from 'react-router-dom'
+import Likes from './Likes'
+import { useSelector } from 'react-redux'
 // import LikesDisplay from './IoComponents/LikesDisplay'
 
 function PostCard({
@@ -10,6 +12,8 @@ function PostCard({
     featuredImage,
     
 }){
+    const userData = useSelector((state) => state.auth.userData);
+    const sessionId = useSelector((state) => state.auth.sessionId);
 
     return (
         <Link to={`/post/${$id}`} className="group block">
@@ -27,9 +31,7 @@ function PostCard({
                         {title}
                     </h2>
 
-                    {/* <div className="mt-4 flex items-center justify-between">
-                       <LikesDisplay postId={$id}/>
-                    </div> */}
+                    <Likes targetType="post" targetId={$id} userId={userData?.$id}   sessionId={sessionId}/>
                     {/* You can add more post info here, like author/date, if available */}
                     <div className="mt-4 flex items-center justify-between">
                         <span className="text-xs text-slate-400 font-medium">Read More</span>

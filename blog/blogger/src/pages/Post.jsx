@@ -119,6 +119,7 @@ export default function Post() {
             </Container>
             <Container>
                 <Comments postId={post.$id || post.postId} />
+      
             </Container>
         </div>
     ) : null;

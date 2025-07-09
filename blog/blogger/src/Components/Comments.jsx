@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchComments, resetComments } from "../store/BackendConfig/commentsSlice";
+import { fetchComments } from "../store/BackendConfig/commentsSlice";
 
 export default function Comments({ postId }) {
   const dispatch = useDispatch();
@@ -10,7 +10,7 @@ export default function Comments({ postId }) {
   useEffect(() => {
     if (postId) {
       setLocalLoading(true);
-      dispatch(resetComments());
+      // dispatch(resetComments());
       Promise.resolve().then(() => {
         dispatch(fetchComments({ postId })).then(() => setLocalLoading(false));
       });

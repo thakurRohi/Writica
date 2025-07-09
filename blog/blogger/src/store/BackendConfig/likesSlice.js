@@ -12,7 +12,8 @@ export const fetchLikeCount = createAsyncThunk(
     const res = await axios.get(
       `${API_BASE_URL}/likes/count?targetType=${targetType}&targetId=${targetId}`
     );
-    return res.data;
+    // Inject targetId into the response
+    return { targetId, count: res.data.count };
   }
 );
 
@@ -23,7 +24,7 @@ export const fetchLikeUsers = createAsyncThunk(
     const res = await axios.get(
       `${API_BASE_URL}/likes/users?targetType=${targetType}&targetId=${targetId}`
     );
-    return res.data;
+    return { targetId, users: res.data.userIds };
   }
 );
 
@@ -35,12 +36,14 @@ export const fetchLikeStatus = createAsyncThunk(
       `${API_BASE_URL}/likes/status?targetType=${targetType}&targetId=${targetId}`,
       {
         headers: {
+          'Content-Type': 'application/json',
           'x-appwrite-user-id': userId,
           'x-appwrite-session-id': sessionId,
         },
       }
     );
-    return res.data;
+    // Inject targetId into the response
+    return { targetId, liked: res.data.liked };
   }
 );
 
@@ -67,46 +70,48 @@ export const toggleLike = createAsyncThunk(
 const likesSlice = createSlice({
     name: 'likes',
     initialState: {
-      count: 0,
-      users: [],
-      status: 'idle',
-      liked: false,
+      counts: {},   // { [targetId]: number }
+      users: {},    // { [targetId]: array }
+      status: {},   // { [targetId]: true/false }
       error: null,
     },
     reducers: {},
     extraReducers: (builder) => {
       builder
         .addCase(fetchLikeCount.fulfilled, (state, action) => {
-          state.count = action.payload.count;
+          const { targetId, count } = action.payload;
+          state.counts[targetId] = count;
         })
         .addCase(fetchLikeUsers.fulfilled, (state, action) => {
-          state.users = action.payload.userIds;
+          const { targetId, users } = action.payload;
+          state.users[targetId] = users;
         })
+        
         .addCase(fetchLikeStatus.fulfilled, (state, action) => {
-          state.liked = action.payload.liked;
+          const { targetId, liked } = action.payload;
+          state.status[targetId] = liked;
         })
-        .addCase(toggleLike.fulfilled, (state, action) => {
-          if (action.payload.action === 'added') {
-            state.liked = true;
-            state.count += 1;
-            state.users.push(action.payload.userId);
-          } else if (action.payload.action === 'removed') {
-            state.liked = false;
-            state.count = Math.max(0, state.count - 1);
-            state.users = state.users.filter(id => id !== action.payload.userId);
-          }
-        })
-        .addMatcher(
-          (action) => action.type.endsWith('/pending'),
-          (state) => {
-            state.status = 'loading';
-            state.error = null;
-          }
-        )
+        // Optimistic update: update state immediately on toggleLike.pending
+        // In your reducer:
+.addCase(toggleLike.pending, (state, action) => {
+  // Only update the status optimistically, not the count
+  const { targetId } = action.meta.arg;
+  state.status[targetId] = !state.status[targetId];
+})
+.addCase(toggleLike.fulfilled, (state, action) => {
+  const { targetId, userId, action: toggleAction } = action.payload;
+  state.status[targetId] = toggleAction === 'added';
+  // Update count based on backend confirmation
+  if (toggleAction === 'added') {
+    state.counts[targetId] = (state.counts[targetId] || 0) + 1;
+  } else if (toggleAction === 'removed') {
+    state.counts[targetId] = Math.max(0, (state.counts[targetId] || 1) - 1);
+  }
+})
+
         .addMatcher(
           (action) => action.type.endsWith('/rejected'),
           (state, action) => {
-            state.status = 'failed';
             state.error = action.error.message;
           }
         );

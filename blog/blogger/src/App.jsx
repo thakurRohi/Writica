@@ -1,6 +1,6 @@
 import React from 'react'
 import  { useState, useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import './App.css'
 import authService from "./appwrite/auth"
 import {login, logout} from "./store/authSlice"
@@ -29,27 +29,26 @@ const dispatch=useDispatch()
 
   useEffect(() => {
     authService.getCurrentUser()
-    .then((userData)=>{
-      if(userData){
-        dispatch(login({userData}))
-      }
-      else{
-        dispatch(logout())
+    .then(async (userData) => {
+      if (userData) {
+        // Fetch the current session as well
+        const session = await authService.getCurrentSession(); // You need to implement this
+        dispatch(login({ userData, sessionId: session?.$id }));
+      } else {
+        dispatch(logout());
       }
     })
     .catch((error) => {
       console.log("Auth check error:", error);
-      dispatch(logout())
+      dispatch(logout());
     })
-    // after that whole process is done loading is done false
-    .finally(()=>setLoading(false))
-  
-   
-  }, [])
+    .finally(() => setLoading(false));
+}, []);
 
   // This hook sets up all your socket event listeners and dispatches Redux actions
   // useSocketListeners();
-
+  const sessionId = useSelector((state) => state.auth.sessionId);
+  console.log('Redux sessionId:', sessionId);
   return !loading ? (
     <div className='min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-slate-100'>
       <div className='w-full flex-1 flex flex-col'>

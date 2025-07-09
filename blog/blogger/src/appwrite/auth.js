@@ -108,6 +108,17 @@ export class AuthService {
         }
     }
 
+    async getCurrentSession() {
+      try {
+        // This gets the current session for the logged-in user
+        const sessions = await this.account.listSessions();
+        // Find the current session (usually the last one or the one with current device)
+        return sessions.sessions[0]; // or use logic to pick the right one
+      } catch (error) {
+        return null;
+      }
+    }
+
 
 }
 
