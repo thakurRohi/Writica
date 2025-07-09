@@ -11,8 +11,25 @@ const app = express();
 
 await connectDB();
 
+// CORS configuration
+const allowedOrigins = [
+  'https://blogger-lgfc.vercel.app/', // <-- Replace with your actual frontend URL
+  'http://localhost:5173'
+];
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true
+}));
+
 // Middleware
-app.use(cors())
 app.use(express.json())
 
 // Prefix all user routes with /api

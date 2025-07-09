@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 // Set your base API URL here
-const API_BASE_URL = '/vercel-api/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/vercel-api/api';
 
 
 // Fetch like count for a target (post or comment)
