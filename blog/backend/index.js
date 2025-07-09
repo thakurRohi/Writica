@@ -13,7 +13,7 @@ await connectDB();
 
 // CORS configuration
 const allowedOrigins = [
-  'https://blogger-lgfc.vercel.app/', // <-- Replace with your actual frontend URL
+  'https://blogger-lgfc.vercel.app', // <-- No trailing slash
   'http://localhost:5173'
 ];
 app.use(cors({
