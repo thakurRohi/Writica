@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchLikeCount,
@@ -6,34 +6,45 @@ import {
   fetchLikeStatus,
   toggleLike,
 } from "../store/BackendConfig/likesSlice";
+import profileService from "../appwrite/profile";
 
-// Utility to get/set liked posts in localStorage per user
-function getCachedLikedPosts(userId) {
-  return JSON.parse(localStorage.getItem(`likedPosts_${userId}`)) || [];
+// Utility for localStorage
+const likedPostsKey = (userId) => `likedPosts_${userId}`;
+const getLikedPosts = (userId) =>
+  JSON.parse(localStorage.getItem(likedPostsKey(userId)) || "[]");
+const setLikedPosts = (userId, posts) =>
+  localStorage.setItem(likedPostsKey(userId), JSON.stringify(posts));
+
+// In-memory cache for userId -> name
+const userNameCache = {};
+
+// LocalStorage cache helpers
+const USER_NAME_CACHE_KEY = 'userNameCache';
+function getUserNameFromCache(userId) {
+  if (userNameCache[userId]) return userNameCache[userId];
+  const cache = JSON.parse(localStorage.getItem(USER_NAME_CACHE_KEY) || '{}');
+  if (cache[userId]) {
+    userNameCache[userId] = cache[userId];
+    return cache[userId];
+  }
+  return null;
 }
-function setCachedLikedPosts(userId, likedPosts) {
-  localStorage.setItem(`likedPosts_${userId}`, JSON.stringify(likedPosts));
+function setUserNameInCache(userId, name) {
+  userNameCache[userId] = name;
+  const cache = JSON.parse(localStorage.getItem(USER_NAME_CACHE_KEY) || '{}');
+  cache[userId] = name;
+  localStorage.setItem(USER_NAME_CACHE_KEY, JSON.stringify(cache));
 }
 
 const Likes = ({ targetType, targetId, userId, sessionId }) => {
   const dispatch = useDispatch();
-
-  // Redux state
   const likeCount = useSelector((state) => state.likes.counts[targetId]);
   const likeUsers = useSelector((state) => state.likes.users[targetId]);
   const isLiked = useSelector((state) => state.likes.status[targetId]);
-  // Optimistic UI state
   const [optimisticLiked, setOptimisticLiked] = useState(false);
+  const [likeUserNames, setLikeUserNames] = useState([]);
 
-  // On mount: use cache for instant feedback
-  useEffect(() => {
-    if (userId && targetId) {
-      const cachedLikedPosts = getCachedLikedPosts(userId);
-      setOptimisticLiked(cachedLikedPosts.includes(targetId));
-    }
-  }, [userId, targetId]);
-
-  // On mount or prop change: fetch from API
+  // Fetch like data and status
   useEffect(() => {
     if (targetType && targetId) {
       dispatch(fetchLikeCount({ targetType, targetId }));
@@ -44,32 +55,63 @@ const Likes = ({ targetType, targetId, userId, sessionId }) => {
     }
   }, [dispatch, targetType, targetId, userId, sessionId]);
 
-  // When API responds: update cache and optimistic UI
+  // Sync optimisticLiked with localStorage and API
   useEffect(() => {
-    if (isLiked !== undefined && userId && targetId) {
-      let likedPosts = getCachedLikedPosts(userId);
-      if (isLiked && !likedPosts.includes(targetId)) {
-        likedPosts.push(targetId);
-        setCachedLikedPosts(userId, likedPosts);
-      } else if (!isLiked && likedPosts.includes(targetId)) {
-        likedPosts = likedPosts.filter((id) => id !== targetId);
-        setCachedLikedPosts(userId, likedPosts);
+    if (userId && targetId) {
+      const cached = getLikedPosts(userId).includes(targetId);
+      setOptimisticLiked(isLiked !== undefined ? isLiked : cached);
+      if (isLiked !== undefined) {
+        const posts = getLikedPosts(userId);
+        if (isLiked && !posts.includes(targetId)) {
+          setLikedPosts(userId, [...posts, targetId]);
+        } else if (!isLiked && posts.includes(targetId)) {
+          setLikedPosts(userId, posts.filter((id) => id !== targetId));
+        }
       }
-      setOptimisticLiked(isLiked);
     }
   }, [isLiked, userId, targetId]);
 
-  // Handle like button click (optimistic update)
-  const handleLikeClick = (e) => {
+  // Fetch names for first two like users (excluding current user)
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchNames() {
+      if (likeUsers && likeUsers.length) {
+        // Exclude current user
+        const filtered = likeUsers.filter(id => id !== userId);
+        const ids = filtered.slice(0, 2);
+        const names = await Promise.all(
+          ids.map(async (id) => {
+            const cached = getUserNameFromCache(id);
+            if (cached) return cached;
+            try {
+              const profile = await profileService.getProfile(id);
+              const name = profile?.name || id;
+              setUserNameInCache(id, name);
+              return name;
+            } catch {
+              setUserNameInCache(id, id);
+              return id;
+            }
+          })
+        );
+        if (isMounted) setLikeUserNames(names);
+      } else {
+        setLikeUserNames([]);
+      }
+    }
+    fetchNames();
+    return () => { isMounted = false; };
+  }, [likeUsers, userId]);
+
+  // Like button handler
+  const handleLikeClick = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
     if (userId && sessionId) {
-      // Optimistically update UI immediately
       setOptimisticLiked((prev) => !prev);
-      // Dispatch toggleLike thunk
       dispatch(toggleLike({ targetType, targetId, userId, sessionId }));
     }
-  };
+  }, [dispatch, targetType, targetId, userId, sessionId]);
 
   return (
     <div className="flex items-center gap-2">
@@ -109,10 +151,13 @@ const Likes = ({ targetType, targetId, userId, sessionId }) => {
             : "Like this post"}
         </span>
       </div>
-      <div className="text-xs text-gray-400 ml-2">
-        {likeUsers && likeUsers.length > 0
-          ? `Liked by: ${likeUsers.join(", ")}`
-          : ""}
+      <div className="text-xs text-gray-400 ml-2 flex items-center gap-1">
+        {likeUserNames.length > 0 && (
+          <>
+            <svg className="inline w-4 h-4 text-red-400 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" /></svg>
+            {`Liked by: ${likeUserNames.join(", ")}${likeUsers && likeUsers.length > 2 ? " and others" : ""}`}
+          </>
+        )}
       </div>
     </div>
   );
