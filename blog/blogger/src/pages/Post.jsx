@@ -23,6 +23,8 @@ export default function Post() {
 
     const isAuthor = post && userData ? post.userId === userData.$id : false;
 
+    const sessionId = useSelector((state) => state.auth.sessionId);
+    
     useEffect(() => {
         if (slug) {
             dispatch(fetchPostBySlug(slug));
@@ -118,7 +120,11 @@ export default function Post() {
                 </div>
             </Container>
             <Container>
-                <Comments postId={post.$id || post.postId} />
+                <Comments
+                    postId={post.$id || post.postId}
+                    userId={userData?.$id}
+                    sessionId={sessionId}
+                />
       
             </Container>
         </div>
