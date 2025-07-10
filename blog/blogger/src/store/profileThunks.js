@@ -7,10 +7,10 @@ export const registerUserAndCreateProfile = createAsyncThunk(
   async ({ name, email, password }, { rejectWithValue }) => {
     try {
       // 1. Register user and create session
-      const session = await authService.createAccount({ email, password, name });
+      const result = await authService.createAccount({ email, password, name });
 
-      // 2. Get user details
-      const user = await authService.getCurrentUser();
+      // 2. Get user details (use the user from the result or get current user)
+      const user = result.user || await authService.getCurrentUser();
       if (!user) throw new Error("Failed to get user data after registration");
 
       // 3. Create profile document
@@ -20,7 +20,7 @@ export const registerUserAndCreateProfile = createAsyncThunk(
         email: user.email,
       });
 
-      return { user, session, profile }; // <-- Include profile
+      return { user, session: result.session, profile }; // <-- Include profile
     } catch (error) {
       return rejectWithValue(error.message);
     }

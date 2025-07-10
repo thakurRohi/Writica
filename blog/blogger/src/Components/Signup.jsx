@@ -19,10 +19,8 @@ function Signup() {
         try {
             const currUserData = await dispatch(registerUserAndCreateProfile(data));
             if (registerUserAndCreateProfile.fulfilled.match(currUserData)) {
-                const session = await authService.login(data); // or however you get the session
-
-               
-                dispatch(login({ userData: currUserData.payload.user ,sessionId: session.$id }));
+                // The session is already created during registration, so we don't need to login again
+                dispatch(login({ userData: currUserData.payload.user, sessionId: currUserData.payload.session.$id }));
                 navigate("/")
             } else if (registerUserAndCreateProfile.rejected.match(currUserData)) {
                 const errorMessage = currUserData.payload || "Registration failed";

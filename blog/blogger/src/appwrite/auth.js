@@ -54,19 +54,22 @@ export class AuthService {
             if (userAccount) {
                 try {
                     // Try to log in
-                    return await this.login({email, password});
+                    const session = await this.login({email, password});
+                    return { user: userAccount, session: session };
                 } catch (error) {
                     // If session already exists, just return the user account
                     if (
                         error.code === 409 &&
                         error.message.includes("session is active")
                     ) {
-                        return userAccount;
+                        // Get the current session instead
+                        const currentSession = await this.getCurrentSession();
+                        return { user: userAccount, session: currentSession };
                     }
                     throw error;
                 }
             } else {
-                return userAccount;
+                return { user: userAccount, session: null };
             }
         } catch (error) {
             throw error;
