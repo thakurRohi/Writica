@@ -18,7 +18,7 @@ import Post from "./pages/Post";
 import MyPosts from "./pages/MyPosts";
 import AllPosts from "./pages/AllPosts";
 import EditProfile from './pages/EditProfile.jsx'
-
+import Bookmarks from './pages/Bookmarks.jsx'
 const router = createBrowserRouter([
   {
     path: "/",
@@ -93,6 +93,15 @@ const router = createBrowserRouter([
         {
             path: "/post/:slug",
             element: <Post />,
+        },
+        {
+            path: "/bookmarks",
+            element: (
+                <AuthLayout authentication>
+                    {" "}
+                    <Bookmarks />
+                </AuthLayout>
+            ),
         },
     ],
 },

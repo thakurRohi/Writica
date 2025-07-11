@@ -5,7 +5,7 @@ import { fetchComments ,addComment,
   deleteComment
 } from "../store/BackendConfig/commentsSlice";
 
-export default function Comments({  postId, content, parentCommentId, userId, sessionId ,commentId ,}) {
+export default function Comments({  postId, content, parentCommentId, userId, sessionId ,commentId }) {
   const dispatch = useDispatch();
   const { items: comments, status, error } = useSelector((state) => state.comments);
   const [localLoading, setLocalLoading] = useState(false);
