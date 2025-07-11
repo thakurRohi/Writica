@@ -2,7 +2,7 @@ import dotenv from 'dotenv/config.js'
 import express from 'express'
 import cors from 'cors'
 import userRoutes from './routes/comment.js'
-
+import bookmarkRouter from './routes/bookmark.js'
 import { connectDB } from './config/db.js'
 import commentsRouter from './routes/comment.js';
 import likesRouter from './routes/like.js';
@@ -35,6 +35,7 @@ app.use(express.json())
 // Prefix all user routes with /api
 app.use('/api/comments', commentsRouter);
 app.use('/api/likes', likesRouter);
+app.use('/api/bookmarks',bookmarkRouter)
 
 // Routes
 app.get('/', (req, res) => {
