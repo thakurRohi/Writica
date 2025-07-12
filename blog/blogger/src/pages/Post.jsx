@@ -113,6 +113,17 @@ export default function Post() {
                     </div>
                     <div className="flex-1 flex flex-col p-8">
                         <h1 className="text-3xl font-bold text-slate-900 mb-4 leading-tight">{post.title}</h1>
+                        
+                        {/* Bookmark button */}
+                        <div className="mb-4">
+                            {/* <ToggleBookmark
+                                targetType="post"
+                                targetId={post.$id}
+                                userId={userData?.$id}
+                                sessionId={sessionId}
+                            /> */}
+                        </div>
+                        
                         <div className="prose prose-lg max-w-none text-slate-800 browser-css bg-slate-50 border border-slate-200 rounded-xl p-8 mb-2 shadow-sm text-justify leading-relaxed text-[1.25rem]">
                             {parse(post.content)}
                         </div>

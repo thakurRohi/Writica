@@ -5,157 +5,185 @@ import axios from 'axios';
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/vercel-api/api';
 
 // Fetch bookmark status for current user
-export const fetchBookmarkStatus = createAsyncThunk(
-    'bookmarks/fetchBookmarkStatus',
-    async ({ targetType, targetId, userId, sessionId }) => {
+export const checkBookmarkStatus = createAsyncThunk(
+  'bookmarks/checkBookmarkStatus',
+  async ({ targetType, targetId, sessionId, userId }, { rejectWithValue }) => {
+    try {
       const res = await axios.get(
         `${API_BASE_URL}/bookmarks/bookmarkStatus?targetType=${targetType}&targetId=${targetId}`,
         {
           headers: {
             'Content-Type': 'application/json',
-            'x-appwrite-user-id': userId,
-            'x-appwrite-session-id': sessionId,
+            'x-appwrite-user-id': userId,        // ✅ Required for Appwrite to know user identity
+            'x-appwrite-session-id': sessionId,  // ✅ Required for session verification
           },
         }
       );
-      // Inject targetId into the response
-      return { targetId, liked: res.data.liked };
+      return res.data.Bookmark;  // true or false
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to check bookmark status');
     }
-  );
+  }
+);
 
 // Toggle like (add or remove)
 export const toggleBookmark = createAsyncThunk(
-    'bookmarks/toggleBookmark',
-    async ({ targetType, targetId, userId, sessionId }) => {
+  'bookmarks/toggleBookmark',
+  async ({ targetType, targetId, sessionId, userId }, { rejectWithValue }) => {
+    try {
       const res = await axios.post(
         `${API_BASE_URL}/bookmarks/toggleBookmark`,
         { targetType, targetId },
         {
           headers: {
             'Content-Type': 'application/json',
-            'x-appwrite-user-id': userId,
-            'x-appwrite-session-id': sessionId,
+            'x-appwrite-user-id': userId,        // ✅ Required for Appwrite identity
+            'x-appwrite-session-id': sessionId,  // ✅ Required for Appwrite session validation
           },
         }
       );
-      return res.data;
+      return res.data; // { targetType, targetId, userId, action }
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to toggle bookmark');
     }
-  );
+  }
+);
 
- export const fetchBookmarkPosts = createAsyncThunk(
-    'bookmarks/fetchBookmarkPosts',
-    async ({ userId,page = 1, limit = 20  }) => {
+export const fetchBookmarkPosts = createAsyncThunk(
+  'bookmarks/fetchBookmarkPosts',
+  async ({ userId, page = 1, limit = 20, sessionId }, { rejectWithValue }) => {
+    try {
       const res = await axios.get(
-        `${API_BASE_URL}/bookmarks/user/${userId}?page=${page}&limit=${limit}`
+        `${API_BASE_URL}/bookmarks/user/${userId}?page=${page}&limit=${limit}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-appwrite-user-id': userId,         // ✅ Required for Appwrite
+            'x-appwrite-session-id': sessionId,   // ✅ Required for Appwrite
+          },
+        }
       );
-      return { posts: res.data.Bookmarks };
+      return {
+        posts: res.data.Bookmarks,
+        pagination: res.data.pagination || { page, limit, total: 0, pages: 1 },
+      };
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to fetch bookmarks');
     }
-  );
+  }
+);
 
-  export const deleteBookmark = createAsyncThunk(
-    'bookmarks/deleteBookmark',
-    async ({ bookmarkId, userId, sessionId }) => {
+  
+
+export const deleteBookmark = createAsyncThunk(
+  'bookmarks/deleteBookmark',
+  async ({ bookmarkId, sessionId, userId }, { rejectWithValue }) => {
+    try {
       const res = await axios.delete(
         `${API_BASE_URL}/bookmarks/${bookmarkId}`,
         {
           headers: {
             'Content-Type': 'application/json',
-            'x-appwrite-user-id': userId,
-            'x-appwrite-session-id': sessionId,
+            'x-appwrite-user-id': userId,        // ✅ Appwrite needs this
+            'x-appwrite-session-id': sessionId,  // ✅ Appwrite needs this
           },
         }
       );
-      return res.data;
+      return { bookmarkId, message: res.data.message };
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to delete bookmark');
     }
-  );
+  }
+);
 
-  const initialState = {
-    bookmarks: [],           // Array of bookmarked post IDs or objects
-    bookmarkStatus: {},      // { [postId]: true/false } for quick lookup
-    loading: false,          // For global loading state
-    error: null,             // For error messages
-    fetchStatus: 'idle',     // 'idle' | 'loading' | 'succeeded' | 'failed'
-    toggleStatus: 'idle',    // Separate status for toggling
-    deleteStatus: 'idle',    // Separate status for deleting
-    fetchStatusStatus: 'idle',    // For fetchBookmarkStatus
-    deleteError: null,            // For deleteBookmark errors
-    fetchStatusError: null,       // For fetchBookmarkStatus errors
-  };
+
 
   const bookmarkSlice = createSlice({
     name: 'bookmarks',
-    initialState,
+    initialState: {
+      posts: [],
+      pagination: {
+        page: 1,
+        limit: 20,
+        total: 0,
+        pages: 1,
+      },
+      bookmarkStatus: {},  // { targetId: true/false }
+      loading: false,
+      error: null,
+      toggleStatus: null, // <-- NEW: To store the last action ('added' or 'removed')
+    },
  
     reducers: {
-       
+      setPage(state, action) {
+        state.pagination.page = action.payload;
+      },
+      clearToggleStatus(state) {
+        state.toggleStatus = null;
+      },
+      
     },
     extraReducers: (builder) => {
       builder
         .addCase(fetchBookmarkPosts.pending, (state) => {
-          state.fetchStatus = 'loading';
+          state.loading = true;
           state.error = null;
      
         })
         .addCase(fetchBookmarkPosts.fulfilled, (state, action) => {
-          state.fetchStatus = 'succeeded';
-          state.bookmarks = action.payload.posts;
+          state.loading = false;
+          state.posts = action.payload.posts || [];
+          state.pagination = action.payload.pagination
         })
         .addCase(fetchBookmarkPosts.rejected, (state, action) => {
-          state.fetchStatus = 'failed';
-          state.error = action.error.message;
+          state.loading = false;
+          state.error = action.payload || 'Failed to fetch bookmarks';
         })
         .addCase(toggleBookmark.pending, (state) => {
-          state.toggleStatus = 'loading';
+          state.toggleStatus = null;
+          state.error = null
         })
         .addCase(toggleBookmark.fulfilled, (state, action) => {
-          state.toggleStatus = 'succeeded';
-          const { targetId, action: toggleAction } = action.payload;
-          state.bookmarkStatus[targetId] = toggleAction === 'added';
+        
+          const { targetId, action: bookmarkAction } = action.payload;
+          const postIndex = state.posts.findIndex(post => post.targetId === targetId);
+
+          if (postIndex !== -1 && bookmarkAction === 'removed') {
+            // Instantly remove the post from UI (optimistic update)
+            state.posts.splice(postIndex, 1);
+          }
+          state.bookmarkStatus[targetId] = bookmarkAction === 'added';
+          state.toggleStatus = bookmarkAction;
         })
         .addCase(toggleBookmark.rejected, (state, action) => {
-          state.toggleStatus = 'failed';
-          state.error = action.error.message;
+          state.toggleStatus = null;
+          state.error = action.payload;
         })
-        .addCase(fetchBookmarkStatus.pending, (state) => {
-          state.fetchStatusStatus = 'loading';
-          state.fetchStatusError = null;
+
+        .addCase(checkBookmarkStatus.fulfilled, (state, action) => {
+          const { targetId } = action.meta.arg;
+          state.bookmarkStatus[targetId] = action.payload;  // true or false
         })
-        .addCase(fetchBookmarkStatus.fulfilled, (state, action) => {
-          state.fetchStatusStatus = 'succeeded';
-          // action.payload: { targetId, liked }
-          const { targetId, liked } = action.payload;
-          state.bookmarkStatus[targetId] = liked;
+        .addCase(checkBookmarkStatus.rejected, (state, action) => {
+          state.error = action.payload;
         })
-        .addCase(fetchBookmarkStatus.rejected, (state, action) => {
-          state.fetchStatusStatus = 'failed';
-          state.fetchStatusError = action.error.message;
-        })
+        
+
         .addCase(deleteBookmark.pending, (state) => {
-          state.deleteStatus = 'loading';
-          state.deleteError = null;
+          state.error = null;
+          
         })
         .addCase(deleteBookmark.fulfilled, (state, action) => {
-          state.deleteStatus = 'succeeded';
-          // action.payload should include bookmarkId or targetId
-          const { bookmarkId, targetId } = action.meta.arg;
-          // Remove from bookmarks array if you store IDs
-          if (bookmarkId) {
-            state.bookmarks = state.bookmarks.filter(id => id !== bookmarkId);
-            delete state.bookmarkStatus[bookmarkId];
-          }
-          // Or if you use targetId
-          if (targetId) {
-            state.bookmarks = state.bookmarks.filter(id => id !== targetId);
-            delete state.bookmarkStatus[targetId];
-          }
+          const deletedId = action.payload.bookmarkId;
+          state.posts = state.posts.filter(post => post._id !== deletedId);
+          delete state.bookmarkStatus[deletedId];
         })
         .addCase(deleteBookmark.rejected, (state, action) => {
-          state.deleteStatus = 'failed';
-          state.deleteError = action.error.message;
+          state.error = action.payload;
         })
     },
   });
-
+  export const { setPage } = bookmarkSlice.actions;
   export default bookmarkSlice.reducer;
 
 

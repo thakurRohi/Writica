@@ -8,6 +8,7 @@ import { fetchComments ,addComment,
 export default function Comments({  postId, content, parentCommentId, userId, sessionId ,commentId }) {
   const dispatch = useDispatch();
   const { items: comments, status, error } = useSelector((state) => state.comments);
+  const { userData } = useSelector((state) => state.auth);
   const [localLoading, setLocalLoading] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [editCommentId, setEditCommentId] = useState(null);
@@ -100,12 +101,12 @@ export default function Comments({  postId, content, parentCommentId, userId, se
           setActionLoading(false);
         }}
         className="mb-6"
-      >
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center text-slate-500 font-bold text-lg">
-            {userId ? userId[0]?.toUpperCase() : <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>}
-          </div>
-          <div className="flex-1">
+              >
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center text-slate-500 font-bold text-lg">
+              {userData?.name ? userData.name[0]?.toUpperCase() : userData?.email ? userData.email[0]?.toUpperCase() : <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>}
+            </div>
+            <div className="flex-1">
             <textarea
               className="w-full border border-slate-300 rounded-lg p-3 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-200 transition disabled:bg-slate-100"
               rows={2}
@@ -131,12 +132,12 @@ export default function Comments({  postId, content, parentCommentId, userId, se
           <li key={comment._id} className="border-b last:border-b-0 pb-6 last:pb-0 flex gap-4">
             {/* Avatar */}
             <div className="flex-shrink-0 w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center text-slate-500 font-bold text-lg mt-1">
-              {comment.userId ? comment.userId[0]?.toUpperCase() : <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>}
+              {comment.userName ? comment.userName[0]?.toUpperCase() : comment.userEmail ? comment.userEmail[0]?.toUpperCase() : <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>}
             </div>
             <div className="flex-1">
               <div className="flex items-center mb-1 justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-slate-800 mr-2">{comment.userId}</span>
+                  <span className="font-semibold text-slate-800 mr-2">{comment.userName || comment.userEmail?.split('@')[0] || comment.userId}</span>
                   <span className="text-xs text-slate-400">{new Date(comment.createdAt).toLocaleString()}</span>
                 </div>
                 {/* Three-dot menu for user's own comments */}
