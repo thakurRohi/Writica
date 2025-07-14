@@ -84,13 +84,13 @@ export default function Post() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-70 pointer-events-none"></div>
                         {isAuthor && (
                             <div className="absolute right-6 top-6 z-10 flex flex-col items-end" ref={menuRef}>
-                                <button
+                                <Button
                                     className="p-2 rounded-full bg-white/80 hover:bg-white shadow-md border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
                                     onClick={() => setMenuOpen((open) => !open)}
                                     aria-label="Post actions"
                                 >
                                     <svg className="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="6" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="18" r="1.5"/></svg>
-                                </button>
+                                </Button>
                                 {menuOpen && (
                                     <div className="mt-2 w-36 bg-white rounded-xl shadow-lg border border-slate-200 py-2 flex flex-col animate-fade-in">
                                         <Link
@@ -113,17 +113,6 @@ export default function Post() {
                     </div>
                     <div className="flex-1 flex flex-col p-8">
                         <h1 className="text-3xl font-bold text-slate-900 mb-4 leading-tight">{post.title}</h1>
-                        
-                        {/* Bookmark button */}
-                        <div className="mb-4">
-                            {/* <ToggleBookmark
-                                targetType="post"
-                                targetId={post.$id}
-                                userId={userData?.$id}
-                                sessionId={sessionId}
-                            /> */}
-                        </div>
-                        
                         <div className="prose prose-lg max-w-none text-slate-800 browser-css bg-slate-50 border border-slate-200 rounded-xl p-8 mb-2 shadow-sm text-justify leading-relaxed text-[1.25rem]">
                             {parse(post.content)}
                         </div>

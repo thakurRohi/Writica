@@ -1,14 +1,61 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import appwriteService from "../appwrite/config";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Likes from './Likes';
 import ToggleBookmark from './ToggleBookmark';  // 🔑 Your BookmarkButton component
 import { useSelector } from 'react-redux';
+import ProfileService from '../appwrite/profile'
 
-function PostCard({ $id, title, featuredImage }) {
+const userNameCache = {};
+const USER_NAME_CACHE_KEY = 'userNameCache';
+function getUserNameFromCache(userId) {
+  if (userNameCache[userId]) return userNameCache[userId];
+  const cache = JSON.parse(localStorage.getItem(USER_NAME_CACHE_KEY) || '{}');
+  if (cache[userId]) {
+    userNameCache[userId] = cache[userId];
+    return cache[userId];
+  }
+  return null;
+}
+function setUserNameInCache(userId, name) {
+  userNameCache[userId] = name;
+  const cache = JSON.parse(localStorage.getItem(USER_NAME_CACHE_KEY) || '{}');
+  cache[userId] = name;
+  localStorage.setItem(USER_NAME_CACHE_KEY, JSON.stringify(cache));
+}
+
+function PostCard({ $id, title, featuredImage,userId }) {
   const userData = useSelector((state) => state.auth.userData);
   const sessionId = useSelector((state) => state.auth.sessionId);
+  const post = useSelector(state => state.file.currentPost);
+  const [authorName, setAuthorName] = useState('');
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    const cached = getUserNameFromCache(userId);
+    if (cached) {
+      setAuthorName(cached);
+    } else {
+      setAuthorName(''); // or userId, or 'User'
+      async function fetchProfile() {
+        try {
+          const profile = await ProfileService.getProfile(userId);
+          setAuthorName(profile.name);
+          setUserNameInCache(userId, profile.name);
+        } catch (error) {
+          setAuthorName('Unknown');
+        }
+      }
+      fetchProfile();
+    }
+  }, [userId]);
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // You can add more logic here if needed
+  };
+  
   return (
     <Link to={`/post/${$id}`} className="group block">
       <div className="w-full bg-white rounded-2xl p-0 shadow-md border border-slate-200 hover:shadow-xl hover:border-blue-400 transition-all duration-300 group-hover:scale-[1.03] overflow-hidden flex flex-col">
@@ -21,7 +68,7 @@ function PostCard({ $id, title, featuredImage }) {
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 rounded-t-2xl"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-70 pointer-events-none"></div>
-
+         
           {/* 🔖 Bookmark Button on top-right */}
           <div className="absolute top-2 right-2 z-10">
             <ToggleBookmark
@@ -30,6 +77,24 @@ function PostCard({ $id, title, featuredImage }) {
               userId={userData?.$id}                 // 👈 User ID
               sessionId={sessionId}                  // 👈 Session
             />
+          </div>
+        </div>
+
+        <div
+          className="block cursor-pointer"
+          onClick={e => {
+            e.preventDefault();
+            e.stopPropagation();
+            navigate(`/my-profile/${$id}`);
+          }}
+        >
+          <div className="flex items-center gap-2 px-5 py-2 border-b border-slate-100 bg-slate-50 w-full">
+            <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
+              {authorName ? authorName[0].toUpperCase() : userId ? userId[0].toUpperCase() : "?"}
+            </div>
+            <span className="text-sm text-slate-700 font-medium">
+              {authorName || userId || <span className="italic text-slate-400">Loading...</span>}
+            </span>
           </div>
         </div>
 

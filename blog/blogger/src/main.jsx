@@ -12,7 +12,7 @@ import { AuthLayout, Login } from './Components/index.js'
 import AddPost from "./pages/AddPost";
 import Signup from './pages/Signup'
 import EditPost from "./pages/EditPost";
-
+import MyProfile from './pages/MyProfile.jsx'
 
 import Post from "./pages/Post";
 import MyPosts from "./pages/MyPosts";
@@ -58,6 +58,15 @@ const router = createBrowserRouter([
                 <AuthLayout authentication>
                     {" "}
                     <AllPosts />
+                </AuthLayout>
+            ),
+        },
+        {
+            path: "/my-profile/:slug",
+            element: (
+                <AuthLayout authentication>
+                    {" "}
+                    <MyProfile />
                 </AuthLayout>
             ),
         },

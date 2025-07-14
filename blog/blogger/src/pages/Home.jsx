@@ -30,10 +30,51 @@ function Home() {
 
  
 
-    if (fetchStatus === 'loading') {
-        return <div className="w-full py-16 text-center">Loading posts...</div>;
-    }
   
+  
+    // Skeleton for loading state
+    const PostCardSkeleton = () => (
+        <div className="w-full bg-white rounded-2xl p-0 shadow-md border border-slate-200 opacity-60 animate-pulse flex flex-col">
+            <div className="relative w-full h-52 bg-slate-200 rounded-t-2xl"></div>
+            <div className="block cursor-pointer">
+                <div className="flex items-center gap-2 px-5 py-2 border-b border-slate-100 bg-slate-50 w-full">
+                    <div className="w-7 h-7 rounded-full bg-blue-100"></div>
+                    <span className="h-4 w-20 bg-slate-200 rounded"></span>
+                </div>
+            </div>
+            <div className="flex-1 flex flex-col justify-between p-5">
+                <div className="h-7 w-3/4 bg-slate-200 rounded mb-2"></div>
+                <div className="h-5 w-1/4 bg-slate-200 rounded mb-4"></div>
+                <div className="mt-4 flex items-center justify-between">
+                    <span className="h-4 w-16 bg-slate-200 rounded"></span>
+                    <span className="h-5 w-5 bg-slate-200 rounded-full"></span>
+                </div>
+            </div>
+        </div>
+    );
+
+    if (fetchStatus === 'loading' && posts.length === 0) {
+        return (
+            <div className="w-full py-12">
+                <Container>
+                    <div className='mb-8'>
+                        <h1 className="text-4xl font-bold text-slate-900 text-center mb-4">Latest Posts</h1>
+                        <p className="text-slate-600 text-center max-w-2xl mx-auto">
+                            Discover amazing stories and insights from our community
+                        </p>
+                    </div>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
+                        {Array.from({ length: 4 }).map((_, idx) => (
+                            <div key={idx}>
+                                <PostCardSkeleton />
+                            </div>
+                        ))}
+                    </div>
+                </Container>
+            </div>
+        )
+    }
+
     if (posts.length === 0) {
         return (
             <div className="w-full py-16">

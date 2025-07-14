@@ -8,17 +8,27 @@ import {
 } from "../store/BackendConfig/likesSlice";
 import profileService from "../appwrite/profile";
 
-// Utility for localStorage
-const likedPostsKey = (userId) => `likedPosts_${userId}`;
-const getLikedPosts = (userId) =>
-  JSON.parse(localStorage.getItem(likedPostsKey(userId)) || "[]");
-const setLikedPosts = (userId, posts) =>
-  localStorage.setItem(likedPostsKey(userId), JSON.stringify(posts));
+// Like count cache (in-memory + localStorage)
+const likeCountCache = {};
+const LIKE_COUNT_CACHE_KEY = 'likeCountCache';
+function getLikeCountFromCache(targetId) {
+  if (likeCountCache[targetId] !== undefined) return likeCountCache[targetId];
+  const cache = JSON.parse(localStorage.getItem(LIKE_COUNT_CACHE_KEY) || '{}');
+  if (cache[targetId] !== undefined) {
+    likeCountCache[targetId] = cache[targetId];
+    return cache[targetId];
+  }
+  return null;
+}
+function setLikeCountInCache(targetId, count) {
+  likeCountCache[targetId] = count;
+  const cache = JSON.parse(localStorage.getItem(LIKE_COUNT_CACHE_KEY) || '{}');
+  cache[targetId] = count;
+  localStorage.setItem(LIKE_COUNT_CACHE_KEY, JSON.stringify(cache));
+}
 
-// In-memory cache for userId -> name
+// User name cache (in-memory + localStorage)
 const userNameCache = {};
-
-// LocalStorage cache helpers
 const USER_NAME_CACHE_KEY = 'userNameCache';
 function getUserNameFromCache(userId) {
   if (userNameCache[userId]) return userNameCache[userId];
@@ -43,6 +53,7 @@ const Likes = ({ targetType, targetId, userId, sessionId }) => {
   const isLiked = useSelector((state) => state.likes.status[targetId]);
   const [optimisticLiked, setOptimisticLiked] = useState(false);
   const [likeUserNames, setLikeUserNames] = useState([]);
+  const [cachedLikeCount, setCachedLikeCount] = useState(() => getLikeCountFromCache(targetId));
 
   // Fetch like data and status
   useEffect(() => {
@@ -55,19 +66,19 @@ const Likes = ({ targetType, targetId, userId, sessionId }) => {
     }
   }, [dispatch, targetType, targetId, userId, sessionId]);
 
+  // Update cache and local state when likeCount changes
+  useEffect(() => {
+    if (likeCount !== undefined && likeCount !== null) {
+      setLikeCountInCache(targetId, likeCount);
+      setCachedLikeCount(likeCount);
+    }
+  }, [likeCount, targetId]);
+
   // Sync optimisticLiked with localStorage and API
   useEffect(() => {
     if (userId && targetId) {
-      const cached = getLikedPosts(userId).includes(targetId);
-      setOptimisticLiked(isLiked !== undefined ? isLiked : cached);
-      if (isLiked !== undefined) {
-        const posts = getLikedPosts(userId);
-        if (isLiked && !posts.includes(targetId)) {
-          setLikedPosts(userId, [...posts, targetId]);
-        } else if (!isLiked && posts.includes(targetId)) {
-          setLikedPosts(userId, posts.filter((id) => id !== targetId));
-        }
-      }
+      // Use like status from Redux
+      setOptimisticLiked(!!isLiked);
     }
   }, [isLiked, userId, targetId]);
 
@@ -139,7 +150,7 @@ const Likes = ({ targetType, targetId, userId, sessionId }) => {
             d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
           />
         </svg>
-        <span className="font-medium text-sm">{likeCount ?? "..."}</span>
+        <span className="font-medium text-sm">{cachedLikeCount ?? "..."}</span>
       </button>
       <div className="flex items-center gap-1 text-xs text-gray-500">
         <span>•</span>
