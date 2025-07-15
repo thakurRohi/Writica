@@ -43,6 +43,7 @@ const UserProfiles = () => {
             getInitials(profile.name || profile.username || 'U')
           )}
         </div>
+        {userId}
         {/* Stats */}
         <div className="flex flex-col gap-2 w-full">
           <div className="text-center">

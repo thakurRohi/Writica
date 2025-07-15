@@ -6,7 +6,7 @@ import bookmarkRouter from './routes/bookmark.js'
 import { connectDB } from './config/db.js'
 import commentsRouter from './routes/comment.js';
 import likesRouter from './routes/like.js';
-
+import followRouter from './routes/follow.js'
 const app = express();
 
 await connectDB();
@@ -36,7 +36,7 @@ app.use(express.json())
 app.use('/api/comments', commentsRouter);
 app.use('/api/likes', likesRouter);
 app.use('/api/bookmarks',bookmarkRouter)
-
+app.use('/api/follow',followRouter)
 // Routes
 app.get('/', (req, res) => {
     res.send('server is ready')
