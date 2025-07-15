@@ -26,6 +26,7 @@ function setUserNameInCache(userId, name) {
 
 function PostCard({ $id, title, featuredImage,userId }) {
   const userData = useSelector((state) => state.auth.userData);
+ 
   const sessionId = useSelector((state) => state.auth.sessionId);
   const post = useSelector(state => state.file.currentPost);
   const [authorName, setAuthorName] = useState('');
@@ -85,7 +86,7 @@ function PostCard({ $id, title, featuredImage,userId }) {
           onClick={e => {
             e.preventDefault();
             e.stopPropagation();
-            navigate(`/my-profile/${$id}`);
+            navigate(`/user/${userId}`);
           }}
         >
           <div className="flex items-center gap-2 px-5 py-2 border-b border-slate-100 bg-slate-50 w-full">
