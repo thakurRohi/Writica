@@ -165,12 +165,19 @@ export default function PostForm({ post }) {
             }
         }, [setValue]);
 
-         // Save form data to localStorage on change
+         // Save form data to localStorage on change (debounced)
     useEffect(() => {
+        let timeoutId;
         const subscription = watch((value) => {
-            localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify({ ...value, _ts: Date.now() }));
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify({ ...value, _ts: Date.now() }));
+            }, 500); // Debounce for 500ms
         });
-        return () => subscription.unsubscribe();
+        return () => {
+            subscription.unsubscribe();
+            clearTimeout(timeoutId);
+        };
     }, [watch]);
 
     useEffect(() => {

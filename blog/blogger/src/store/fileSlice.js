@@ -146,7 +146,7 @@ const initialState = {
           })
           
           // Get File Preview
-          .addCase(getFilePreview.pending, (state) => {4
+          .addCase(getFilePreview.pending, (state) => {
             state.previewStatus = 'loading';
             state.error = null;
           })

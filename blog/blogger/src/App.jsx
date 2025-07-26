@@ -6,6 +6,7 @@ import authService from "./appwrite/auth"
 import {login, logout} from "./store/authSlice"
 import { Footer, Header } from './Components'
 import { Outlet } from 'react-router-dom'
+import ErrorBoundary from './Components/ErrorBoundary'
 // socket for later use
 // import useSocketListeners from "./hooks/useSocketListeners"
 // import { fetchProfile } from './store/profileSlice'
@@ -50,18 +51,20 @@ const dispatch=useDispatch()
   const sessionId = useSelector((state) => state.auth.sessionId);
   console.log('Redux sessionId:', sessionId);
   return !loading ? (
-    <div className='min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-slate-100'>
-      <div className='w-full flex-1 flex flex-col'>
-        <Header />
- 
-       
+    <ErrorBoundary>
+      <div className='min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-slate-100'>
+        <div className='w-full flex-1 flex flex-col'>
+          <Header />
+   
+          
 
-        <main className='flex-1'>
-        <Outlet />
-        </main>
-        <Footer />
+          <main className='flex-1'>
+          <Outlet />
+          </main>
+          <Footer />
+        </div>
       </div>
-    </div>
+    </ErrorBoundary>
   ) : null
 }
 

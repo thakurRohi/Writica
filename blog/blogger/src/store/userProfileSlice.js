@@ -4,13 +4,34 @@ import profileService from '../appwrite/profile';
 // Async thunk to fetch user profile by ID
 export const fetchUserProfile = createAsyncThunk(
   'userProfile/fetchUserProfile',
-  async (userId) => {
+  async (userId, { rejectWithValue }) => {
     try {
+      if (!userId) {
+        return rejectWithValue('User ID is required');
+      }
+
       const profile = await profileService.getProfile(userId);
-      if (!profile) throw new Error('User not found');
+      if (!profile) {
+        return rejectWithValue('User profile not found');
+      }
       return profile;
     } catch (error) {
-      throw new Error(error.message || 'User not found');
+      console.error('fetchUserProfile error:', error);
+      
+      // Handle different types of errors
+      if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('Network error detected'))) {
+        return rejectWithValue('Network error: Unable to connect to server. Please check your internet connection and try again.');
+      }
+      
+      if (error.code === 404) {
+        return rejectWithValue('User profile not found');
+      }
+      
+      if (error.code === 401) {
+        return rejectWithValue('Authentication required');
+      }
+      
+      return rejectWithValue(error.message || 'Failed to fetch user profile');
     }
   }
 );

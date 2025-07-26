@@ -6,6 +6,7 @@ import likesSlice from'./BackendConfig/likesSlice'
 import commentsSlice from './BackendConfig/commentsSlice'
 import bookmarkSlice from './BackendConfig/bookmarkSlice'
 import userProfileSlice from './userProfileSlice'
+import followSlice from './BackendConfig/userFollowSlice'
 const store = configureStore({
     reducer: {
         auth : authSlice,
@@ -14,8 +15,8 @@ const store = configureStore({
         userProfile:userProfileSlice,
         likes:likesSlice,
         comments:commentsSlice,
-        bookmarks:bookmarkSlice
-        //TODO: add more slices here for posts
+        bookmarks:bookmarkSlice,
+        follow:followSlice//TODO: add more slices here for posts
     }
 });
 

@@ -81,6 +81,10 @@ export const createPost = createAsyncThunk(
         const userPosts = await service.getUserPosts(userId);
         return userPosts; // Return the array of user's posts
       } catch (error) {
+        // Handle network errors specifically
+        if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('Network error detected'))) {
+          return rejectWithValue('Network error: Unable to fetch user posts. Please check your internet connection and try again.');
+        }
         return rejectWithValue(error.message);
       }
     }

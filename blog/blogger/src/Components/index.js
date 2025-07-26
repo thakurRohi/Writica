@@ -13,6 +13,7 @@ import PostCard from "./PostCard";
 import AuthLayout from "./AuthLayout";
 import Input from "./Input";
 import ProfileComponent from "./Profile";
+import ErrorBoundary from "./ErrorBoundary";
 export {
     Header,
     Footer,
@@ -30,4 +31,5 @@ export {
     Input,
     Select,
     ProfileComponent,
+    ErrorBoundary,
 }

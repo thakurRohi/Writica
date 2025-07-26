@@ -19,6 +19,8 @@ import MyPosts from "./pages/MyPosts";
 import AllPosts from "./pages/AllPosts";
 import EditProfile from './pages/EditProfile.jsx'
 import Bookmarks from './pages/Bookmarks.jsx'
+import FollowingUsers from './Components/FollowingUsers.jsx'
+import FollowDetails from './pages/FollowDetails.jsx'
 const router = createBrowserRouter([
   {
     path: "/",
@@ -112,6 +114,25 @@ const router = createBrowserRouter([
                 </AuthLayout>
             ),
         },
+
+            {
+                path: "/follow-details/:userId",
+                element: (
+                    <AuthLayout authentication>
+                        {" "}
+                        <FollowDetails />
+                    </AuthLayout>
+                ),
+            },
+            {
+                path: "/following-details/:userId",
+                element: (
+                    <AuthLayout authentication>
+                        {" "}
+                        <FollowingUsers />
+                    </AuthLayout>
+                ),
+            },
     ],
 },
 ])

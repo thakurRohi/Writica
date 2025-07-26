@@ -13,14 +13,17 @@ await connectDB();
 
 // CORS configuration
 const allowedOrigins = [
-  'https://blogger-lgfc.vercel.app', // <-- No trailing slash
-  'http://localhost:5173'
+  'https://blogger-lgfc.vercel.app', // Frontend domain
+  'https://blogger-lbcd.vercel.app', // Backend domain (if needed)
+  'http://localhost:5173',           // Local development
+  'http://localhost:3000'            // Local backend
 ];
 app.use(cors({
   origin: function (origin, callback) {
     // allow requests with no origin (like mobile apps, curl, etc.)
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) === -1) {
+      console.log('CORS blocked origin:', origin);
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
       return callback(new Error(msg), false);
     }
