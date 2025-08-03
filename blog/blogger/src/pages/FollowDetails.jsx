@@ -7,7 +7,7 @@ const FollowDetails = () => {
   return (
     <div style={{ padding: 24 }}>
       <h2>Followers</h2>
-      <FollowersList userId={userId} />
+      {/* <FollowersList userId={userId} /> */}
       
     </div>
   );

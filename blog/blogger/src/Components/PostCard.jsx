@@ -8,6 +8,7 @@ import ProfileService from '../appwrite/profile'
 
 const userNameCache = {};
 const USER_NAME_CACHE_KEY = 'userNameCache';
+
 function getUserNameFromCache(userId) {
   if (userNameCache[userId]) return userNameCache[userId];
   const cache = JSON.parse(localStorage.getItem(USER_NAME_CACHE_KEY) || '{}');
@@ -86,7 +87,7 @@ function PostCard({ $id, title, featuredImage,userId }) {
           onClick={e => {
             e.preventDefault();
             e.stopPropagation();
-            navigate(`/user/${userId}`);
+            // navigate(`/user/${userId}`);
           }}
         >
           <div className="flex items-center gap-2 px-5 py-2 border-b border-slate-100 bg-slate-50 w-full">
