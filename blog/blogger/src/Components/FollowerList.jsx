@@ -24,9 +24,7 @@ const FollowersList = ({ userId }) => {
   if (loading) return <div>Loading...</div>;
   return (
     <ul>
-      {followers.map((user, idx) => (
-        <li key={user._id || idx}>{JSON.stringify(user)}</li>
-      ))}
+      1
     </ul>
   );
 };
