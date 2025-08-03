@@ -16,7 +16,8 @@ const allowedOrigins = [
   'https://blogger-lgfc.vercel.app', // Frontend domain
   'https://blogger-lbcd.vercel.app', // Backend domain (if needed)
   'http://localhost:5173',           // Local development
-  'http://localhost:3000'            // Local backend
+  'http://localhost:3000' ,
+  'blogger-lgfc-rohit-thakurs-projects-5c1cdf52.vercel.app'           // Local backend
 ];
 app.use(cors({
   origin: function (origin, callback) {
