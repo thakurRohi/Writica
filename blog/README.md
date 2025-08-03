@@ -1,6 +1,6 @@
-# 📝 Blog Platform
+# 🎯 Placement Experience Hub
 
-A modern, full-stack blog platform built with React, Node.js, and Appwrite. This project demonstrates advanced web development concepts including authentication, real-time features, and responsive design.
+A minimalistic platform designed for college students to share and discover placement interview experiences. Connect with peers, learn from real interview stories, and prepare for your dream job with authentic insights from successful candidates.
 
 ## ✨ Features
 
