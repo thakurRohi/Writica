@@ -14,6 +14,8 @@ import AuthLayout from "./AuthLayout";
 import Input from "./Input";
 import ProfileComponent from "./Profile";
 import ErrorBoundary from "./ErrorBoundary";
+import SearchBar from "./SearchBar";
+
 export {
     Header,
     Footer,
@@ -32,4 +34,5 @@ export {
     Select,
     ProfileComponent,
     ErrorBoundary,
+    SearchBar,
 }

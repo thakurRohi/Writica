@@ -8,7 +8,8 @@ import {
     uploadFile,
     deleteFile,
     getFilePreview,
-    fetchPostBySlug
+    fetchPostBySlug,
+    searchPosts
 } from './fileThunks';
 
 const initialState = {
@@ -22,6 +23,12 @@ const initialState = {
     progress: 0, // Progress percentage for file upload (0-100)
     currentPost: null,
     currentPostStatus: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+    // Search related state
+    searchResults: [],
+    searchStatus: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+    searchTerm: '',
+    searchFilters: [],
+    searchTotal: 0,
   };
 
   const fileSlice = createSlice({
@@ -174,6 +181,25 @@ const initialState = {
           .addCase(fetchPostBySlug.rejected, (state, action) => {
             state.currentPostStatus = 'failed';
             state.currentPost = null;
+            state.error = action.payload;
+          })
+          
+          // Search Posts
+          .addCase(searchPosts.pending, (state) => {
+            state.searchStatus = 'loading';
+            state.error = null;
+          })
+          .addCase(searchPosts.fulfilled, (state, action) => {
+            state.searchStatus = 'succeeded';
+            state.searchResults = action.payload.documents || [];
+            state.searchTerm = action.payload.searchTerm;
+            state.searchFilters = action.payload.filters;
+            state.searchTotal = action.payload.total;
+            state.error = null;
+          })
+          .addCase(searchPosts.rejected, (state, action) => {
+            state.searchStatus = 'failed';
+            state.searchResults = [];
             state.error = action.payload;
           });
       }

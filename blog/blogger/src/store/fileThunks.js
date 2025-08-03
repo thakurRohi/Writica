@@ -167,3 +167,22 @@ export const createPost = createAsyncThunk(
   }
   );
 
+  // Search posts thunk
+  export const searchPosts = createAsyncThunk(
+    'posts/searchPosts',
+    async ({ searchTerm, filters = [] }, { rejectWithValue }) => {
+      try {
+        const searchResults = await service.searchPosts(searchTerm, filters);
+        return {
+          documents: searchResults.documents || [],
+          total: searchResults.total || 0,
+          searchTerm,
+          filters
+        };
+      } catch (error) {
+        console.error('Search error:', error);
+        return rejectWithValue(error.message || 'Search failed');
+      }
+    }
+  );
+

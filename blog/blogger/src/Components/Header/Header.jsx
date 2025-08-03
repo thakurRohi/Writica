@@ -1,5 +1,5 @@
 import React from 'react'
-import {Container, Logo, LogoutBtn, ProfileComponent} from '../index'
+import {Container, Logo, LogoutBtn, ProfileComponent, SearchBar} from '../index'
 import { Link } from 'react-router-dom'
 import {useSelector} from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -60,6 +60,14 @@ function Header() {
               <Logo width='70px' />
             </Link>
           </div>
+
+          {/* Search Bar - Only show for authenticated users */}
+          {authStatus && (
+            <div className='flex-1 max-w-md mx-8'>
+              <SearchBar placeholder="Search posts..." />
+            </div>
+          )}
+
 {/* mapped all array items along with their urls and their authStatus 
 based on useState value of authentication */}
           <ul className='flex items-center space-x-2'>

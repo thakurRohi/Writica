@@ -124,6 +124,64 @@ export class Service{
         }
     }
 
+    // Search posts by title, content, or author
+    async searchPosts(searchTerm, filters = []) {
+        try {
+            // First, try to get all active posts
+            const allPosts = await this.databases.listDocuments(
+                conf.appwriteDatabaseId,
+                conf.appwriteCollectionId,
+                [Query.equal("status", "active")]
+            );
+
+            if (!allPosts || !allPosts.documents) {
+                return { documents: [], total: 0 };
+            }
+
+            // Filter posts on the client side for better search
+            const searchLower = searchTerm.toLowerCase();
+            const filteredPosts = allPosts.documents.filter(post => {
+                const titleMatch = post.title && post.title.toLowerCase().includes(searchLower);
+                const contentMatch = post.content && post.content.toLowerCase().includes(searchLower);
+                return titleMatch || contentMatch;
+            });
+
+            return {
+                documents: filteredPosts,
+                total: filteredPosts.length
+            };
+        } catch (error) {
+            console.log("Appwrite service :: searchPosts :: error", error);
+            return { documents: [], total: 0 };
+        }
+    }
+
+    // Search posts by author name (requires joining with user profiles)
+    async searchPostsByAuthor(authorName) {
+        try {
+            // First, find users with matching names
+            const userQueries = [
+                Query.search("name", authorName)
+            ];
+            
+            // This would require a separate users collection
+            // For now, we'll search in post content and title
+            const queries = [
+                Query.equal("status", "active"),
+                Query.search("title", authorName)
+            ];
+            
+            return await this.databases.listDocuments(
+                conf.appwriteDatabaseId,
+                conf.appwriteCollectionId,
+                queries
+            );
+        } catch (error) {
+            console.log("Appwrite service :: searchPostsByAuthor :: error", error);
+            return false;
+        }
+    }
+
     // file upload service
 
     async uploadFile(file){
