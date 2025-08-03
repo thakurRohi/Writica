@@ -21,6 +21,8 @@ import EditProfile from './pages/EditProfile.jsx'
 import Bookmarks from './pages/Bookmarks.jsx'
 import FollowingUsers from './Components/FollowingUsers.jsx'
 import FollowDetails from './pages/FollowDetails.jsx'
+import SearchResults from './pages/SearchResults.jsx'
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -130,6 +132,15 @@ const router = createBrowserRouter([
                     <AuthLayout authentication>
                         {" "}
                         <FollowingUsers />
+                    </AuthLayout>
+                ),
+            },
+            {
+                path: "/search",
+                element: (
+                    <AuthLayout authentication>
+                        {" "}
+                        <SearchResults />
                     </AuthLayout>
                 ),
             },
